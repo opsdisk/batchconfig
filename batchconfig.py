@@ -47,11 +47,17 @@ if not exist !outputDir! (
                 execute = line.split(';')[0]
                 name = line.split(';')[1]
                 command = line.split(';')[2]
-                logfile = line.split(';')[3]
+                if singleFile:
+                    logfile = singleFileName
+                else:
+                    logfile = line.split(';')[3]
                 
                 if execute in ['y', 'Y'] :
                     batchFile.write('echo [*] Getting ' + name + '\n')
-                    batchFile.write(command + ' > !outputDir!\\' + logfile)
+                    if singleFile:
+                        batchFile.write(command + ' >> !outputDir!\\' + logfile + '\n')
+                    else:
+                        batchFile.write(command + ' > !outputDir!\\' + logfile)
                     batchFile.write('echo        [+] Received ' + name + '\n')
                     batchFile.write('echo ' + '='*60 + '\n')
                     batchFile.write('\n')
@@ -70,8 +76,10 @@ endlocal
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='batchconfig version ' + version)
-    parser.add_argument('-i', dest="configfile", action='store', help=".cfg file to read in")
-    parser.add_argument('-o', dest='batchfile', action='store', default='batchconfig.bat', help='.bat output file (batchconfig.bat if unspecified)')
+    parser.add_argument('-i', dest='configfile', action='store', help='.cfg file to read in')
+    parser.add_argument('-o', dest='batchfile', action='store', default='batchconfig.bat', help='.bat output file (Defautl: batchconfig.bat)')
+    parser.add_argument('-s', dest='singlefile', action='store_true', default=False, help='Send output to a single file.')
+    parser.add_argument('-f', dest='singlefilename', action='store', default='results.txt', help='Specify file name to write results to (default is results.txt)')
     args = parser.parse_args()
     
     if not args.configfile:
@@ -83,7 +91,9 @@ if __name__ == "__main__":
     
     configFile = open(args.configfile, 'r')
     batchFile = open(args.batchfile, 'w')
-    
+    singleFile = args.singlefile
+    singleFileName = args.singlefilename
+
     main()
     
     print "[*] Done"
