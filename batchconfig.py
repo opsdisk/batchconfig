@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/env/python
 # Reads in a .cfg file and creates a .bat file
 # MIT License
 # Opsdisk LLC | opsdisk.com 
@@ -7,12 +7,14 @@ import argparse
 import re
 import sys
 
-version = '1.0'
+version = '1.1'
 
 def main():
     batchFile.write('''@echo off
 setlocal enableextensions enabledelayedexpansion
-
+''')
+    if not singleFile:
+        batchFile.write('''
 if [%1] ==[] (
     set target=%COMPUTERNAME%
     echo [-] No target specified, using the local hostname: !target!
@@ -33,11 +35,10 @@ if not exist !outputDir! (
 )
     ''')
 
-    batchFile.write('echo [*] Starting survey' + '\n')
+    batchFile.write('echo [*] Starting survey' + 2* '\n')
     batchFile.write('rem Prevents \"Please wait while WMIC is being installed\" being written if wmic is not installed.' + '\n')
-    batchFile.write('wmic foo >nul 2>&1' + '\n')
-    for line in configFile :
-        
+    batchFile.write('wmic foo >nul 2>&1' + 2* '\n')
+    for line in configFile:
         if line in ['\n', '\r\n']: # Blank lines
             pass
         elif re.match('#', line): # Comments
@@ -55,7 +56,9 @@ if not exist !outputDir! (
                 if execute in ['y', 'Y'] :
                     batchFile.write('echo [*] Getting ' + name + '\n')
                     if singleFile:
-                        batchFile.write(command + ' >> !outputDir!\\' + logfile + '\n')
+                        batchFile.write('echo ====================================== >> ' + logfile + '\n')
+                        batchFile.write('echo command: ' + command + ' >> ' + logfile + '\n')
+                        batchFile.write(command + ' >> ' + logfile + '\n')
                     else:
                         batchFile.write(command + ' > !outputDir!\\' + logfile)
                     batchFile.write('echo        [+] Received ' + name + '\n')
@@ -66,7 +69,7 @@ if not exist !outputDir! (
     
     batchFile.write('''
 echo [*] Output directory: !outputDir!
-echo [*] Script finished
+echo [+] Script finished!
 
 endlocal
     ''')
