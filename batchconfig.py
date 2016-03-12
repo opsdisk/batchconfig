@@ -35,9 +35,14 @@ if not exist !outputDir! (
 )
     ''')
 
-    batchFile.write('echo [*] Starting survey' + 2* '\n')
+    batchFile.write('echo [*] Starting survey' + 2 * '\n')
     batchFile.write('rem Prevents \"Please wait while WMIC is being installed\" being written if wmic is not installed.' + '\n')
-    batchFile.write('wmic foo >nul 2>&1' + 2* '\n')
+    batchFile.write('wmic foo >nul 2>&1' + 2 * '\n')
+    
+    if singleFile:
+        logfile = singleFileName
+        batchFile.write('echo. 2> ' + logfile + 2 * '\n')  # Creates empty file
+
     for line in configFile:
         if line in ['\n', '\r\n']: # Blank lines
             pass
@@ -48,9 +53,7 @@ if not exist !outputDir! (
                 execute = line.split(';')[0]
                 name = line.split(';')[1]
                 command = line.split(';')[2]
-                if singleFile:
-                    logfile = singleFileName
-                else:
+                if not singleFile:
                     logfile = line.split(';')[3]
                 
                 if execute in ['y', 'Y'] :
@@ -62,7 +65,7 @@ if not exist !outputDir! (
                     else:
                         batchFile.write(command + ' > !outputDir!\\' + logfile)
                     batchFile.write('echo        [+] Received ' + name + '\n')
-                    batchFile.write('echo ' + '='*60 + '\n')
+                    batchFile.write('echo ' + 60 * '=' + '\n')
                     batchFile.write('\n')
             except:
                 pass
@@ -86,10 +89,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     if not args.configfile:
-        print "[-] Specify a config file use"
+        print "[-] Specify a config file to use"
         sys.exit(0)
     if not args.batchfile:
-        print"[-] Specify a .bat output file"
+        print"[-] Specify the .bat output file"
         sys.exit(0)
     
     configFile = open(args.configfile, 'r')
@@ -99,5 +102,5 @@ if __name__ == "__main__":
 
     main()
     
-    print "[*] Done"
+    print "[+] Batch file created."
     
