@@ -20,4 +20,6 @@ The configuration files are combination of information collected through network
 * [SANS Digital Forensics Poster](http://blogs.sans.org/computer-forensics/files/2012/06/SANS-Digital-Forensics-and-Incident-Response-Poster-2012.pdf)
 * [Windows Sysinternals autoruns.exe](https://technet.microsoft.com/en-us/sysinternals/bb842062.aspx)
 
+When wmic is output to a file, it is in unicode, so you may have to clean up the data.  In notepad++, this can be done by replacing NUL ('\0') with nothing.
+
 Contributions and suggestions from the community are always welcome.  You can find the files on [https://github.com/opsdisk/batchconfig](https://github.com/opsdisk/batchconfig) and follow [@opsdisk](https://twitter.com/opsdisk) on Twitter for the latest updates. 
