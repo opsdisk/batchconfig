@@ -7,7 +7,7 @@ import argparse
 import re
 import sys
 
-version = '1.1'
+version = '1.2'
 
 def main():
     batchFile.write('''@echo off
