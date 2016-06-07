@@ -7,7 +7,8 @@ import argparse
 import re
 import sys
 
-version = '1.2'
+version = '1.3'
+
 
 def main():
     batchFile.write('''@echo off
@@ -36,18 +37,21 @@ if not exist !outputDir! (
     ''')
 
     batchFile.write('echo [*] Starting survey' + 2 * '\n')
-    batchFile.write('rem Prevents \"Please wait while WMIC is being installed\" being written if wmic is not installed.' + '\n')
-    batchFile.write('wmic foo >nul 2>&1' + 2 * '\n')
+    if not noWMIC:
+        batchFile.write('rem Prevents \"Please wait while WMIC is being installed\" being written if wmic is not installed.' + '\n')
+        batchFile.write('wmic foo >nul 2>&1' + 2 * '\n')
     
     if singleFile:
         logfile = singleFileName
         batchFile.write('echo. 2> ' + logfile + 2 * '\n')  # Creates empty file
 
     for line in configFile:
-        if line in ['\n', '\r\n']: # Blank lines
+        if line in ['\n', '\r\n']:  # Blank lines
             pass
-        elif re.match('#', line): # Comments
-            pass    
+        elif re.match('#', line):  # Comments
+            pass
+        elif (re.search('wmic', line) and noWMIC):  # Don't include wmic commands
+            pass
         else:
             try:
                 execute = line.split(';')[0]
@@ -56,7 +60,7 @@ if not exist !outputDir! (
                 if not singleFile:
                     logfile = line.split(';')[3]
                 
-                if execute in ['y', 'Y'] :
+                if execute in ['y', 'Y']:
                     batchFile.write('echo [*] Getting ' + name + '\n')
                     if singleFile:
                         batchFile.write('echo ====================================== >> ' + logfile + '\n')
@@ -86,6 +90,7 @@ if __name__ == "__main__":
     parser.add_argument('-o', dest='batchfile', action='store', default='batchconfig.bat', help='.bat output file (Defautl: batchconfig.bat)')
     parser.add_argument('-s', dest='singlefile', action='store_true', default=False, help='Send output to a single file.')
     parser.add_argument('-f', dest='singlefilename', action='store', default='results.txt', help='Specify file name to write results to (default is results.txt)')
+    parser.add_argument('-w', dest='nowmic', action='store_true', default=False, help='Disable wmic commands')
     args = parser.parse_args()
     
     if not args.configfile:
@@ -94,13 +99,15 @@ if __name__ == "__main__":
     if not args.batchfile:
         print"[-] Specify the .bat output file"
         sys.exit(0)
-    
+    if args.nowmic:
+        print "[*] Not including wmic commands"
+
     configFile = open(args.configfile, 'r')
     batchFile = open(args.batchfile, 'w')
     singleFile = args.singlefile
     singleFileName = args.singlefilename
+    noWMIC = args.nowmic
 
     main()
     
     print "[+] Batch file created."
-    
