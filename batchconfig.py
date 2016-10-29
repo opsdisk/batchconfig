@@ -1,8 +1,8 @@
 #!/usr/env/python
 # Reads in a .cfg file and creates a .bat file
 # MIT License
-# Opsdisk LLC | opsdisk.com 
- 
+# Opsdisk LLC | opsdisk.com
+
 import argparse
 import re
 import sys
@@ -40,7 +40,7 @@ if not exist !outputDir! (
     if not noWMIC:
         batchFile.write('rem Prevents \"Please wait while WMIC is being installed\" being written if wmic is not installed.' + '\n')
         batchFile.write('wmic foo >nul 2>&1' + 2 * '\n')
-    
+
     if singleFile:
         logfile = singleFileName
         batchFile.write('echo. 2> ' + logfile + 2 * '\n')  # Creates empty file
@@ -59,7 +59,7 @@ if not exist !outputDir! (
                 command = line.split(';')[2]
                 if not singleFile:
                     logfile = line.split(';')[3]
-                
+
                 if execute in ['y', 'Y']:
                     batchFile.write('echo [*] Getting ' + name + '\n')
                     if singleFile:
@@ -73,14 +73,14 @@ if not exist !outputDir! (
                     batchFile.write('\n')
             except:
                 pass
-    
+
     batchFile.write('''
 echo [*] Output directory: !outputDir!
 echo [+] Script finished!
 
 endlocal
     ''')
-    
+
     batchFile.close()
     configFile.close()
 
@@ -92,7 +92,7 @@ if __name__ == "__main__":
     parser.add_argument('-f', dest='singlefilename', action='store', default='results.txt', help='Specify file name to write results to (default is results.txt)')
     parser.add_argument('-w', dest='nowmic', action='store_true', default=False, help='Disable wmic commands')
     args = parser.parse_args()
-    
+
     if not args.configfile:
         print "[-] Specify a config file to use"
         sys.exit(0)
@@ -109,5 +109,5 @@ if __name__ == "__main__":
     noWMIC = args.nowmic
 
     main()
-    
+
     print "[+] Batch file created."
